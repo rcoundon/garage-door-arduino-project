@@ -55,7 +55,7 @@ export default class GarageDoorStack extends sst.Stack {
         authorizer: 'basicAuth',
       },
       routes: {
-        'GET /': notifyFunction,
+        'GET /garage': notifyFunction,
       },
     });
 
