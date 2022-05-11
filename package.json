@@ -5,9 +5,9 @@
   "scripts": {
     "test": "sst test",
     "start:dev": "AWS_PROFILE=personal sst start --region eu-west-2 --stage dev",
-    "build": "sst build",
-    "deploy": "sst deploy",
-    "remove": "sst remove"
+    "build:dev": "AWS_PROFILE=personal sst build --region eu-west-2 --stage dev",
+    "deploy:dev": "AWS_PROFILE=personal sst deploy --region eu-west-2 --stage dev",
+    "remove:dev": "AWS_PROFILE=personal sst remove --region eu-west-2 --stage dev"
   },
   "eslintConfig": {
     "extends": [
@@ -20,17 +20,17 @@
     "@tsconfig/node14": "1.0.1",
     "@types/aws-lambda": "8.10.97",
     "@types/node": "<15.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.23.0",
-    "@typescript-eslint/parser": "^5.23.0",
+    "@typescript-eslint/eslint-plugin": "5.23.0",
+    "@typescript-eslint/parser": "5.23.0",
     "aws-cdk-lib": "2.22.0",
-    "eslint": "^8.15.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.6.2",
-    "typescript": "4.4.4"
+    "eslint": "8.15.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "prettier": "2.6.2",
+    "typescript": "4.6.4"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "3.87.0",
-    "@aws-sdk/client-sns": "^3.87.0"
+    "@aws-sdk/client-sns": "3.87.0"
   }
 }

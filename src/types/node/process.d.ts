@@ -9,5 +9,7 @@ declare namespace NodeJS {
     PHONE_SUBSCRIBER: string;
     TOPIC_NAME: string;
     TOPIC_ARN: string;
+    BASIC_AUTH_USERNAME: string;
+    BASIC_AUTH_PASSWORD: string;
   }
 }

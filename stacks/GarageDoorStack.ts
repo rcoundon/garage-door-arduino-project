@@ -1,6 +1,5 @@
 import * as sst from '@serverless-stack/resources';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Topic } from 'aws-cdk-lib/aws-sns';
 import { SmsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 
 export default class GarageDoorStack extends sst.Stack {
@@ -23,6 +22,14 @@ export default class GarageDoorStack extends sst.Stack {
 
     garageDoorTopic.cdk.topic.addSubscription(smsSubscription);
 
+    const basicAuthHandler = new sst.Function(this, 'basicAuthHandler', {
+      handler: 'src/main/handlers/basicAuth/basicAuth.handleBasicAuth',
+      environment: {
+        BASIC_AUTH_USERNAME: process.env.BASIC_AUTH_USERNAME,
+        BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD,
+      },
+    });
+
     const notifyFunction = new sst.Function(this, 'notifyFunction', {
       handler: 'src/handlers/lambda.handler',
       environment: {
@@ -37,8 +44,16 @@ export default class GarageDoorStack extends sst.Stack {
 
     notifyFunction.addToRolePolicy(emailSenderIdentityPolicy);
 
-    // Create a HTTP API
     const api = new sst.Api(this, 'Api', {
+      authorizers: {
+        basicAuth: {
+          function: basicAuthHandler,
+          type: 'lambda',
+        },
+      },
+      defaults: {
+        authorizer: 'basicAuth',
+      },
       routes: {
         'GET /': notifyFunction,
       },
