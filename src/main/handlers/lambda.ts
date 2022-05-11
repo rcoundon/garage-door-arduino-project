@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 
-import { notify } from '../service/notificationService';
+import { notify } from '@/service/notificationService';
 
 export type DoorState = 'open' | 'close';
 

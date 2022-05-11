@@ -23,7 +23,7 @@ export default class GarageDoorStack extends sst.Stack {
     garageDoorTopic.cdk.topic.addSubscription(smsSubscription);
 
     const basicAuthHandler = new sst.Function(this, 'basicAuthHandler', {
-      handler: 'src/main/handlers/basicAuth/basicAuth.handleBasicAuth',
+      handler: 'src/main/handlers/basicAuth.handleBasicAuth',
       environment: {
         BASIC_AUTH_USERNAME: process.env.BASIC_AUTH_USERNAME,
         BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD,
@@ -31,7 +31,7 @@ export default class GarageDoorStack extends sst.Stack {
     });
 
     const notifyFunction = new sst.Function(this, 'notifyFunction', {
-      handler: 'src/handlers/lambda.handler',
+      handler: 'src/main/handlers/lambda.handler',
       environment: {
         EMAIL_SENDER: process.env.EMAIL_SENDER,
         EMAIL_TARGET: process.env.EMAIL_TARGET,
