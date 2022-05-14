@@ -7,7 +7,10 @@ export function GarageDoorStack(ctx: sst.StackContext) {
   const account = ctx.stack.account;
   const sesIdentity = `arn:aws:ses:${region}:${account}:identity/${process.env.EMAIL_SENDER}`;
 
-  const smsSubscription = new SmsSubscription(process.env.PHONE_SUBSCRIBER, {});
+  const targetPhoneSubscribers = process.env.PHONE_SUBSCRIBERS.split(',');
+  const subs = targetPhoneSubscribers.map((sub) => {
+    return new SmsSubscription(sub, {});
+  });
 
   const emailSenderIdentityPolicy = new PolicyStatement({
     effect: Effect.ALLOW,
@@ -17,7 +20,9 @@ export function GarageDoorStack(ctx: sst.StackContext) {
 
   const garageDoorTopic = new sst.Topic(ctx.stack, 'garage-door-topic', {});
 
-  garageDoorTopic.cdk.topic.addSubscription(smsSubscription);
+  subs.forEach((sub) => {
+    garageDoorTopic.cdk.topic.addSubscription(sub);
+  });
 
   const basicAuthHandler = new sst.Function(ctx.stack, 'basicAuthHandler', {
     handler: 'src/main/handlers/basicAuth.handleBasicAuth',
