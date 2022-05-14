@@ -6,4 +6,4 @@ It'll send an email and an SMS to the subscribers mentioned in the .env file
 
 # High Level Architecture Diagram
 
-![](Garage Door Project.png)
+![image](Garage Door Project.png)
