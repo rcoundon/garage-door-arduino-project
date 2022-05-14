@@ -26,3 +26,4 @@ yarn-error.log*
 .env.dev
 .idea/*
 
+arduino_secrets.h
