@@ -20,6 +20,7 @@ int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 const int sensor = 2;
+
 const int MAX_OPEN_TIME_MILLIS = -(60*5*1000);
 const int LOOP_DELAY_MILLIS = 30 * 1000;
 bool oldState = LOW;
@@ -84,8 +85,7 @@ void loop() {
   Serial.print("notifiedClose at loop start: ");Serial.println(notifiedClose);
   
   const bool newState = digitalRead(sensor);
- 
-  String sendValue = "";
+
 
   if (newState == HIGH) {
     Serial.println("newState: HIGH");
@@ -99,14 +99,12 @@ void loop() {
   
   if (newState == LOW && oldState == HIGH) {
     Serial.println("Closing door");
-    sendValue = "close";
     closed = true;
     close_time = millis();
     open_time = millis();
     notifiedOpen = true;
   } else if (newState == HIGH && oldState == LOW) {
     Serial.println("Opening door");
-    sendValue = "open";    
     closed = false;
     open_time = millis();
     notifiedOpen = false;
@@ -130,18 +128,11 @@ void loop() {
       while (!client.connect(server, 443)) {
         ;
         delay(1000);
-      }    
+      }
     }
 
-    String url = "GET /garage?state=open HTTP/1.1";
-    Serial.println(url);
-    client.println(url);
-    client.print("Host: ");client.println(serverStr);
-    client.println(basicAuth);
-    client.println("Connection: close");
-    client.println();
+    makeRequest(true);
 
-    sendValue = "";
     Serial.println("Setting sent to true");
     notifiedOpen = true;
     notifiedClose = false;
@@ -153,13 +144,7 @@ void loop() {
         delay(1000);
       }    
     }
-    String url = "GET /garage?state=close HTTP/1.1";
-    Serial.println(url);
-    client.println(url);
-    client.print("Host: ");client.println(serverStr);
-    client.println(basicAuth);
-    client.println("Connection: close");
-    client.println();
+    makeRequest(false);
     notifiedClose = true;
     
   }
@@ -169,6 +154,25 @@ void loop() {
   Serial.println("______________________________________________");
   Serial.println();
 
+}
+
+void makeRequest(bool open){
+
+  if(!client.connect(server, 443)){
+    while (!client.connect(server, 443)) {
+      ;
+      delay(1000);
+    }
+  }
+  String paramValue = open ? "open" : "close";
+
+  String url = "GET /garage?state=" + paramValue + " HTTP/1.1";
+  Serial.println(url);
+  client.println(url);
+  client.print("Host: ");client.println(serverStr);
+  client.println(basicAuth);
+  client.println("Connection: close");
+  client.println();
 }
 
 void printWiFiStatus() {
