@@ -14,14 +14,14 @@
  ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID; // your network SSID (name)
 char pass[] = SECRET_PASS; // your network password (use for WPA, or use as key for WEP)
-char ssid[] = SECRET_SSID; // your network SSID (name)
 char server[] = SECRET_API_SERVER; // your network SSID (name)
 char basicAuth[] = SECRET_BASIC_AUTH; // your network SSID (name)
 int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 const int sensor = 2;
-const int MAX_OPEN_TIME_MILLIS = -10000;
+const int MAX_OPEN_TIME_MILLIS = -(60*5*1000);
+const int LOOP_DELAY_MILLIS = 30 * 1000;
 bool oldState = LOW;
 
 long int start_time;
@@ -102,6 +102,7 @@ void loop() {
     sendValue = "close";
     closed = true;
     close_time = millis();
+    open_time = millis();
     notifiedOpen = true;
   } else if (newState == HIGH && oldState == LOW) {
     Serial.println("Opening door");
@@ -163,7 +164,7 @@ void loop() {
     
   }
 //  client.stop();
-  delay(5000);
+  delay(LOOP_DELAY_MILLIS);
   Serial.println();
   Serial.println("______________________________________________");
   Serial.println();
