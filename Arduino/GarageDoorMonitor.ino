@@ -1,18 +1,11 @@
 /*
 
-This example creates a client object that connects and transfers
-
-data using always SSL.
-
-It is compatible with the methods normally related to plain
-
-connections, like client.connect(host, port).
-
-Written by Arturo Guadalupi
-
-last revision November 2015
+ Monitors Pin 2 with a magnetic switch attached of an Arduino MKR1010 and
+ makes a call to an API with the state if opened for more than -MAX_OPEN_TIME_MILLIS
+ After that is triggered a subsequent close event will be sent to the API
 
 */
+
 
 #include <SPI.h>
 #include <WiFiNINA.h>
@@ -143,7 +136,7 @@ void loop() {
     Serial.println(url);
     client.println(url);
     client.print("Host: ");client.println(serverStr);
-    client.println("Authorization: Basic Z2FyYWdlOmFsc2tkamxha3NqZGxrYXNqZDl1OTAwMzk4a2pkcXdu");
+    client.println(basicAuth);
     client.println("Connection: close");
     client.println();
 
