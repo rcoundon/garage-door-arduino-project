@@ -6,7 +6,6 @@
 
 */
 
-
 #include <SPI.h>
 #include <WiFiNINA.h>
 
@@ -15,8 +14,7 @@
 char ssid[] = SECRET_SSID; // your network SSID (name)
 char pass[] = SECRET_PASS; // your network password (use for WPA, or use as key for WEP)
 char server[] = SECRET_API_SERVER; // your network SSID (name)
-char basicAuth[] = SECRET_BASIC_AUTH; // your network SSID (name)
-int keyIndex = 0; // your network key Index number (needed only for WEP)
+char basic_auth[] = SECRET_BASIC_AUTH; // your network SSID (name)
 
 int status = WL_IDLE_STATUS;
 const int sensor = 2;
@@ -30,10 +28,10 @@ long int open_time;
 long int close_time;
 
 bool closed = false;
-bool notifiedOpen = true;
-bool notifiedClose = true;
+bool notified_open = true;
+bool notified_close = true;
 
-String serverStr = server;
+String server_str = server;
 
 WiFiSSLClient client;
 
@@ -81,35 +79,35 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("notifiedOpen at loop start: ");Serial.println(notifiedOpen);
-  Serial.print("notifiedClose at loop start: ");Serial.println(notifiedClose);
+  Serial.print("notified_open at loop start: ");Serial.println(notified_open);
+  Serial.print("notified_close at loop start: ");Serial.println(notified_close);
   
-  const bool newState = digitalRead(sensor);
+  const bool new_state = digitalRead(sensor);
 
 
-  if (newState == HIGH) {
-    Serial.println("newState: HIGH");
+  if (new_state == HIGH) {
+    Serial.println("new_state: HIGH");
     close_time = millis();
   }
-  if (newState == LOW) {
-    Serial.println("newState: LOW");
+  if (new_state == LOW) {
+    Serial.println("new_state: LOW");
   }
     
   Serial.print("oldState");Serial.println(oldState);
   
-  if (newState == LOW && oldState == HIGH) {
+  if (new_state == LOW && oldState == HIGH) {
     Serial.println("Closing door");
     closed = true;
     close_time = millis();
     open_time = millis();
-    notifiedOpen = true;
-  } else if (newState == HIGH && oldState == LOW) {
+    notified_open = true;
+  } else if (new_state == HIGH && oldState == LOW) {
     Serial.println("Opening door");
     closed = false;
     open_time = millis();
-    notifiedOpen = false;
+    notified_open = false;
   }
-  oldState = newState;
+  oldState = new_state;
 
   // if there are incoming bytes available
   // from the server, read them and print them:
@@ -122,7 +120,7 @@ void loop() {
 
   Serial.print("Time passed since open: ");Serial.print(open_time_passed);Serial.println("ms");
 
-  if(!notifiedOpen && open_time_passed < MAX_OPEN_TIME_MILLIS) {
+  if(!notified_open && open_time_passed < MAX_OPEN_TIME_MILLIS) {
     Serial.println("Not yet sent");
     if(!client.connect(server, 443)){
       while (!client.connect(server, 443)) {
@@ -134,10 +132,10 @@ void loop() {
     makeRequest(true);
 
     Serial.println("Setting sent to true");
-    notifiedOpen = true;
-    notifiedClose = false;
-  } else if (notifiedOpen && closed && !notifiedClose) {
-    Serial.println("notifiedClose is false - sending close");
+    notified_open = true;
+    notified_close = false;
+  } else if (notified_open && closed && !notified_close) {
+    Serial.println("notified_close is false - sending close");
     if(!client.connect(server, 443)){
       while (!client.connect(server, 443)) {
         ;
@@ -145,7 +143,7 @@ void loop() {
       }    
     }
     makeRequest(false);
-    notifiedClose = true;
+    notified_close = true;
     
   }
 //  client.stop();
@@ -164,13 +162,13 @@ void makeRequest(bool open){
       delay(1000);
     }
   }
-  String paramValue = open ? "open" : "close";
+  String param_value = open ? "open" : "close";
 
-  String url = "GET /garage?state=" + paramValue + " HTTP/1.1";
+  String url = "GET /garage?state=" + param_value + " HTTP/1.1";
   Serial.println(url);
   client.println(url);
-  client.print("Host: ");client.println(serverStr);
-  client.println(basicAuth);
+  client.print("Host: ");client.println(server_str);
+  client.println(basic_auth);
   client.println("Connection: close");
   client.println();
 }
