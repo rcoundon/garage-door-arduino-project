@@ -14,7 +14,7 @@
 char ssid[] = SECRET_SSID; // your network SSID (name)
 char pass[] = SECRET_PASS; // your network password (use for WPA, or use as key for WEP)
 char server[] = SECRET_API_SERVER; // your network SSID (name)
-char basic_auth[] = SECRET_BASIC_AUTH; // your network SSID (name)
+char basic_auth[] = SECRET_BASIC_AUTH; // your basic auth header e.g. Basic somebase64encodedstring
 
 int status = WL_IDLE_STATUS;
 const int sensor = 2;
