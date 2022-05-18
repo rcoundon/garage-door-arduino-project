@@ -18,7 +18,13 @@ export function GarageDoorStack(ctx: sst.StackContext) {
     resources: [sesIdentity],
   });
 
-  const garageDoorTopic = new sst.Topic(ctx.stack, 'garage-door-topic', {});
+  const garageDoorTopic = new sst.Topic(ctx.stack, 'garage-door-topic', {
+    cdk: {
+      topic: {
+        contentBasedDeduplication: false,
+      },
+    },
+  });
 
   subs.forEach((sub) => {
     garageDoorTopic.cdk.topic.addSubscription(sub);
@@ -46,6 +52,10 @@ export function GarageDoorStack(ctx: sst.StackContext) {
 
   notifyFunction.addToRolePolicy(emailSenderIdentityPolicy);
 
+  const testFunc = new sst.Function(ctx.stack, 'testFunc', {
+    handler: 'src/main/handlers/test.handler',
+  });
+
   const api = new sst.Api(ctx.stack, 'Api', {
     authorizers: {
       basicAuth: {
@@ -58,6 +68,7 @@ export function GarageDoorStack(ctx: sst.StackContext) {
     },
     routes: {
       'GET /garage': notifyFunction,
+      'GET /test': testFunc,
     },
   });
 

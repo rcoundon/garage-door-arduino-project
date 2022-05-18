@@ -20,7 +20,7 @@ int status = WL_IDLE_STATUS;
 const int sensor = 2;
 
 const int MAX_OPEN_TIME_MILLIS = -(60*5*1000);
-const int LOOP_DELAY_MILLIS = 30 * 1000;
+const int LOOP_DELAY_MILLIS = 2 * 1000;
 bool oldState = LOW;
 
 long int start_time;
