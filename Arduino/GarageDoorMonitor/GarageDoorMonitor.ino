@@ -19,7 +19,7 @@ char basic_auth[] = SECRET_BASIC_AUTH; // your basic auth header e.g. Basic some
 int status = WL_IDLE_STATUS;
 const int sensor = 2;
 
-const int MAX_OPEN_TIME_MILLIS = -(60*5*1000);
+const int MAX_OPEN_TIME_MILLIS = -(5*60*1000);
 const int LOOP_DELAY_MILLIS = 2 * 1000;
 bool oldState = LOW;
 
@@ -30,6 +30,7 @@ long int close_time;
 bool closed = false;
 bool notified_open = true;
 bool notified_close = true;
+bool debug = false;
 
 String server_str = server;
 
@@ -40,16 +41,19 @@ void setup() {
   close_time = millis();
   open_time = millis();
   //Initialize serial and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
+  if(debug){
+    Serial.begin(9600);
+    while (!Serial) {
+      ; // wait for serial port to connect. Needed for native USB port only
+    }
   }
+  
 
   pinMode(sensor, INPUT_PULLUP);
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed!");
+    if(debug){Serial.println("Communication with WiFi module failed!");}
     // don't continue
     while (true);
   }
@@ -57,14 +61,16 @@ void setup() {
   String fv = WiFi.firmwareVersion();
 
   if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
-    Serial.println("Please upgrade the firmware");
+    if(debug){Serial.println("Please upgrade the firmware");}
   }
 
   // attempt to connect to WiFi network:
 
   while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
+    if(debug){
+      Serial.print("Attempting to connect to SSID: ");
+      Serial.println(ssid);
+    }
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
 
     status = WiFi.begin(ssid, pass);
@@ -79,30 +85,30 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("notified_open at loop start: ");Serial.println(notified_open);
-  Serial.print("notified_close at loop start: ");Serial.println(notified_close);
-  
+  if(debug){
+    Serial.print("notified_open at loop start: ");Serial.println(notified_open);
+    Serial.print("notified_close at loop start: ");Serial.println(notified_close);
+  }
   const bool new_state = digitalRead(sensor);
 
-
   if (new_state == HIGH) {
-    Serial.println("new_state: HIGH");
+    if(debug){Serial.println("new_state: HIGH");}
     close_time = millis();
   }
   if (new_state == LOW) {
-    Serial.println("new_state: LOW");
+    if(debug){Serial.println("new_state: LOW");}
   }
     
   Serial.print("oldState");Serial.println(oldState);
   
   if (new_state == LOW && oldState == HIGH) {
-    Serial.println("Closing door");
+    if(debug){Serial.println("Closing door");}
     closed = true;
     close_time = millis();
     open_time = millis();
     notified_open = true;
   } else if (new_state == HIGH && oldState == LOW) {
-    Serial.println("Opening door");
+    if(debug){Serial.println("Opening door");}
     closed = false;
     open_time = millis();
     notified_open = false;
@@ -118,10 +124,10 @@ void loop() {
 
   long int open_time_passed = open_time - close_time;
 
-  Serial.print("Time passed since open: ");Serial.print(open_time_passed);Serial.println("ms");
+  if(debug){Serial.print("Time passed since open: ");Serial.print(open_time_passed);Serial.println("ms");}
 
   if(!notified_open && open_time_passed < MAX_OPEN_TIME_MILLIS) {
-    Serial.println("Not yet sent");
+    if(debug){Serial.println("Not yet sent");}
     if(!client.connect(server, 443)){
       while (!client.connect(server, 443)) {
         ;
@@ -131,11 +137,11 @@ void loop() {
 
     makeRequest(true);
 
-    Serial.println("Setting sent to true");
+    if(debug){Serial.println("Setting sent to true");}
     notified_open = true;
     notified_close = false;
   } else if (notified_open && closed && !notified_close) {
-    Serial.println("notified_close is false - sending close");
+    if(debug){Serial.println("notified_close is false - sending close");}
     if(!client.connect(server, 443)){
       while (!client.connect(server, 443)) {
         ;
@@ -148,9 +154,11 @@ void loop() {
   }
 //  client.stop();
   delay(LOOP_DELAY_MILLIS);
-  Serial.println();
-  Serial.println("______________________________________________");
-  Serial.println();
+  if(debug){
+    Serial.println();
+    Serial.println("______________________________________________");
+    Serial.println();
+  }
 
 }
 
@@ -165,7 +173,7 @@ void makeRequest(bool open){
   String param_value = open ? "open" : "close";
 
   String url = "GET /garage?state=" + param_value + " HTTP/1.1";
-  Serial.println(url);
+  if(debug){Serial.println(url);}
   client.println(url);
   client.print("Host: ");client.println(server_str);
   client.println(basic_auth);
@@ -177,18 +185,20 @@ void printWiFiStatus() {
 
   // print the SSID of the network you're attached to:
 
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-
-  // print your board's IP address:
-
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-
-  // print the received signal strength:
-  long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.print(rssi);
-  Serial.println(" dBm");
+  if(debug){
+    Serial.print("SSID: ");
+    Serial.println(WiFi.SSID());
+  
+    // print your board's IP address:
+  
+    IPAddress ip = WiFi.localIP();
+    Serial.print("IP Address: ");
+    Serial.println(ip);
+  
+    // print the received signal strength:
+    long rssi = WiFi.RSSI();
+    Serial.print("signal strength (RSSI):");
+    Serial.print(rssi);
+    Serial.println(" dBm");
+  }
 }
